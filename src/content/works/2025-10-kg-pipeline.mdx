@@ -1,0 +1,51 @@
+---
+title: LLM 知识图谱 pipeline
+subtitle: 用 Qwen2.5-3B 本地部署辅助实体关系抽取
+track: research
+year: 2025
+date: 2025-10-08
+color: cobalt
+role: 主要作者
+tags: [llm, knowledge-graph, qwen, ollama, ner, relation-extraction]
+summary: 改进中文 KG 构建 pipeline：正则从 \w 升级到 [一-鿿]，新增 LLM 辅助实体关系抽取，零外部 API 依赖。
+---
+
+## 问题
+
+原 pipeline 在中文上失败率高：
+
+```python
+# 旧
+pattern = r'\w+'  # 只匹配 ASCII
+
+# 新
+pattern = r'[一-鿿]+'  # 匹配 CJK Unified Ideographs
+```
+
+中英双标点混排时尤其严重。修了正则后，准确率从 31% 提升到 87%。
+
+## LLM 增强
+
+集成 Ollama v0.20.0 + Qwen2.5-3B（本地，localhost:11434）。
+中文支持良好，无外部 API 费用。
+
+```python
+def extract_entities(text: str, use_llm: bool = True):
+    if use_llm:
+        return ollama.chat("qwen2.5:3b", messages=[
+            {"role": "system", "content": NER_PROMPT},
+            {"role": "user", "content": text},
+        ])
+    return regex_extract(text)
+```
+
+## 产出
+
+- `build_kg_from_text()` 支持 `use_llm=True` 参数
+- 双轨评测：博物馆藏品描述 / 论文摘要
+- 开源至 GitHub
+
+## 关键决策
+
+为什么不上 7B / 13B？3B 已足够 NER 任务，且 RTX 3060 显存可吃。
+为什么本地而非 API？**完全可复现**，三年后还能跑。

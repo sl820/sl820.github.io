@@ -1,0 +1,553 @@
+---
+import { type CollectionEntry, getCollection, render } from "astro:content";
+import { Image } from "astro:assets";
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import { TRACK_META } from "~/lib/site";
+import { COLORS } from "~/lib/site";
+
+export async function getStaticPaths() {
+  const works = await getCollection("works", ({ data }) => !data.draft);
+  return works.map((work) => ({
+    params: { slug: work.id },
+    props: { work },
+  }));
+}
+
+interface Props {
+  work: CollectionEntry<"works">;
+}
+
+const { work } = Astro.props;
+const { Content } = await render(work);
+
+const track = TRACK_META[work.data.track];
+const colorHex = COLORS[work.data.color];
+
+const yearCN = ["〇", "一", "二", "三", "四", "五", "六", "七", "八", "九"];
+const yearString = String(work.data.year).split("").map((d) => yearCN[Number(d)]).join("");
+
+const dateStr = work.data.date.toISOString().slice(0, 10);
+
+// 配图处理：cover + gallery
+// 注意：cover / gallery 的值在 jinglan-ip 中是「文件名」，用 import.meta.glob 动态加载
+// 为类型安全，只对设计 track 启用图片
+const slug = work.id;
+const assetGlob = import.meta.glob<{ default: ImageMetadata }>(
+  "/src/assets/works/*/*.{png,jpg,jpeg,webp}",
+  { eager: true }
+);
+const slugImages = Object.fromEntries(
+  Object.entries(assetGlob)
+    .filter(([path]) => path.includes(`/works/${slug}/`))
+    .map(([path, mod]) => [path.split("/").pop()!, mod.default])
+);
+const coverImg = work.data.cover ? slugImages[work.data.cover] : null;
+type Gallery = { views?: string[]; stickers?: string[] } | string[];
+const gallery = work.data.gallery as Gallery | undefined;
+const viewImgs = gallery && "views" in gallery ? gallery.views?.map((f) => slugImages[f]).filter(Boolean) ?? [] : [];
+const stickerImgs = gallery && "stickers" in gallery ? gallery.stickers?.map((f) => slugImages[f]).filter(Boolean) ?? [] : [];
+
+// 视图标题映射
+const viewLabels: Record<string, string> = {
+  "三视图.png": "三视图",
+  "正视图.png": "正视图",
+  "侧视图.png": "侧视图",
+  "背视图.png": "背视图",
+  "效果图.png": "场景图",
+};
+const stickerLabels: Record<string, string> = {
+  "我来了（开心）.png": "我来了",
+  "思考中.png": "思考中",
+  "吃惊.png": "吃惊",
+  "伤心.png": "伤心",
+};
+---
+
+<BaseLayout
+  title={work.data.title}
+  description={work.data.summary}
+  pageClass="page-work"
+>
+  <article class="work" style={`--work-color: ${colorHex};`}>
+    <!-- Header -->
+    <header class="work__head">
+      <div class="work__head-inner">
+        <p class="t-kicker work__track">
+          <span class="work__track-dot" aria-hidden="true"></span>
+          {track.labelEn} · {track.label}
+        </p>
+
+        <h1 class="work__title">{work.data.title}</h1>
+
+        {work.data.subtitle && (
+          <p class="work__subtitle">{work.data.subtitle}</p>
+        )}
+
+        <div class="work__meta">
+          <dl>
+            <div>
+              <dt class="t-kicker">Year</dt>
+              <dd class="t-num">{yearString}</dd>
+            </div>
+            {work.data.role && (
+              <div>
+                <dt class="t-kicker">Role</dt>
+                <dd>{work.data.role}</dd>
+              </div>
+            )}
+            {work.data.client && (
+              <div>
+                <dt class="t-kicker">Client</dt>
+                <dd>{work.data.client}</dd>
+              </div>
+            )}
+            {work.data.location && (
+              <div>
+                <dt class="t-kicker">Location</dt>
+                <dd>{work.data.location}</dd>
+              </div>
+            )}
+            {work.data.tags.length > 0 && (
+              <div>
+                <dt class="t-kicker">Tags</dt>
+                <dd>{work.data.tags.join(" · ")}</dd>
+              </div>
+            )}
+            <div>
+              <dt class="t-kicker">Date</dt>
+              <dd class="t-num">{dateStr}</dd>
+            </div>
+          </dl>
+        </div>
+      </div>
+    </header>
+
+    <!-- Cover (if any) -->
+    {
+      coverImg && (
+        <figure class="work__cover">
+          <div class="work__cover-frame">
+            <Image
+              src={coverImg}
+              alt={`${work.data.title} · cover`}
+              widths={[640, 960, 1280, 1600]}
+              sizes="(max-width: 768px) 100vw, 88vw"
+              loading="eager"
+              quality={88}
+              format="webp"
+            />
+          </div>
+          <figcaption class="t-caption work__cap">
+            <span class="work__cap-mark" aria-hidden="true">—</span>
+            晶 · 主视觉
+          </figcaption>
+        </figure>
+      )
+    }
+
+    <div class="work__rule" aria-hidden="true"></div>
+
+    <!-- Body -->
+    <div class="work__body">
+      <div class="t-prose work__prose">
+        <p class="work__summary">{work.data.summary}</p>
+        <Content />
+      </div>
+    </div>
+
+    <!-- Gallery · Views -->
+    {
+      viewImgs.length > 0 && (
+        <section class="work__gallery">
+          <header class="work__gal-head">
+            <p class="t-kicker work__gal-num">№ 01</p>
+            <h2 class="work__gal-title">角色视图</h2>
+            <p class="work__gal-sub">Character views · 五视图</p>
+          </header>
+          <div class="work__gal-grid work__gal-grid--views">
+            {viewImgs.map((img) => {
+              const fname = Object.entries(slugImages).find(([, v]) => v === img)?.[0] ?? "";
+              const label = viewLabels[fname] ?? fname.replace(/\.png$/, "");
+              return (
+                <figure class="work__gal-item">
+                  <div class="work__gal-frame">
+                    <Image
+                      src={img}
+                      alt={`${work.data.title} · ${label}`}
+                      widths={[320, 640, 960]}
+                      sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
+                      loading="lazy"
+                      quality={85}
+                      format="webp"
+                    />
+                  </div>
+                  <figcaption class="t-caption work__gal-cap">{label}</figcaption>
+                </figure>
+              );
+            })}
+          </div>
+        </section>
+      )
+    }
+
+    <!-- Gallery · Stickers -->
+    {
+      stickerImgs.length > 0 && (
+        <section class="work__gallery">
+          <header class="work__gal-head">
+            <p class="t-kicker work__gal-num">№ 02</p>
+            <h2 class="work__gal-title">情绪贴纸</h2>
+            <p class="work__gal-sub">Emotion stickers · 四态</p>
+          </header>
+          <div class="work__gal-grid work__gal-grid--stickers">
+            {stickerImgs.map((img) => {
+              const fname = Object.entries(slugImages).find(([, v]) => v === img)?.[0] ?? "";
+              const label = stickerLabels[fname] ?? fname.replace(/\.png$/, "");
+              return (
+                <figure class="work__gal-item work__gal-item--sticker">
+                  <div class="work__gal-frame work__gal-frame--sticker">
+                    <Image
+                      src={img}
+                      alt={`${work.data.title} · 贴纸 ${label}`}
+                      widths={[240, 480, 720]}
+                      sizes="(max-width: 640px) 50vw, 25vw"
+                      loading="lazy"
+                      quality={85}
+                      format="webp"
+                    />
+                  </div>
+                  <figcaption class="t-caption work__gal-cap">{label}</figcaption>
+                </figure>
+              );
+            })}
+          </div>
+        </section>
+      )
+    }
+
+    <!-- Footer nav -->
+    <footer class="work__foot">
+      <a href="/works" class="work__back">
+        <span aria-hidden="true">←</span>
+        <span>Back to works</span>
+      </a>
+    </footer>
+  </article>
+</BaseLayout>
+
+<style>
+  .page-work {
+    background-color: var(--color-paper);
+  }
+
+  .work {
+    color: var(--color-ink);
+  }
+
+  .work__head {
+    padding: var(--spacing-24) var(--spacing-8) var(--spacing-12);
+    max-width: var(--container-wide);
+    margin: 0 auto;
+  }
+
+  .work__head-inner {
+    max-width: 100%;
+  }
+
+  .work__track {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6em;
+    color: var(--color-mute);
+    margin-bottom: var(--spacing-6);
+  }
+
+  .work__track-dot {
+    width: 0.5em;
+    height: 0.5em;
+    background-color: var(--work-color);
+    border-radius: 50%;
+  }
+
+  .work__title {
+    font-family: var(--font-display);
+    font-size: var(--text-5xl);
+    line-height: 1;
+    letter-spacing: -0.03em;
+    font-weight: 400;
+    font-variation-settings: "opsz" 144, "SOFT" 50;
+    color: var(--color-ink);
+    margin: 0 0 var(--spacing-6);
+    max-width: 18ch;
+  }
+
+  .work__subtitle {
+    font-family: var(--font-serif);
+    font-size: var(--text-2xl);
+    line-height: 1.4;
+    color: var(--color-ink);
+    font-weight: 400;
+    max-width: 36ch;
+    margin: 0 0 var(--spacing-12);
+  }
+
+  .work__meta {
+    border-top: 1px solid var(--color-rule);
+    padding-top: var(--spacing-6);
+  }
+
+  .work__meta dl {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+    gap: var(--spacing-6);
+  }
+
+  .work__meta div {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-1);
+  }
+
+  .work__meta dt {
+    color: var(--color-mute);
+  }
+
+  .work__meta dd {
+    font-family: var(--font-sans);
+    font-size: var(--text-sm);
+    color: var(--color-ink);
+    margin: 0;
+  }
+
+  /* ---- Cover ---- */
+  .work__cover {
+    max-width: var(--container-wide);
+    margin: 0 auto;
+    padding: 0 var(--spacing-8) var(--spacing-8);
+  }
+
+  .work__cover-frame {
+    background-color: var(--color-paper);
+    border: 1px solid var(--color-rule);
+    padding: var(--spacing-8);
+    display: grid;
+    place-items: center;
+    min-height: 24rem;
+    position: relative;
+  }
+
+  .work__cover-frame::before,
+  .work__cover-frame::after {
+    content: "";
+    position: absolute;
+    width: var(--spacing-12);
+    height: var(--spacing-12);
+    border: 1px solid var(--work-color);
+  }
+  .work__cover-frame::before {
+    top: var(--spacing-4);
+    left: var(--spacing-4);
+    border-right: none;
+    border-bottom: none;
+  }
+  .work__cover-frame::after {
+    bottom: var(--spacing-4);
+    right: var(--spacing-4);
+    border-left: none;
+    border-top: none;
+  }
+
+  .work__cover-frame img {
+    max-height: 36rem;
+    width: auto;
+    max-width: 100%;
+    height: auto;
+    object-fit: contain;
+  }
+
+  .work__cap {
+    text-align: right;
+    margin-top: var(--spacing-3);
+    padding-right: var(--spacing-2);
+  }
+
+  .work__cap-mark {
+    color: var(--work-color);
+    margin-right: 0.5em;
+  }
+
+  /* ---- Rule ---- */
+  .work__rule {
+    height: 1px;
+    background-color: var(--color-rule);
+    max-width: var(--container-wide);
+    margin: var(--spacing-12) auto;
+  }
+
+  /* ---- Body ---- */
+  .work__body {
+    padding: 0 var(--spacing-8) var(--spacing-16);
+    max-width: var(--container-wide);
+    margin: 0 auto;
+  }
+
+  .work__prose {
+    margin: 0 auto;
+  }
+
+  .work__summary {
+    font-family: var(--font-display);
+    font-size: var(--text-3xl);
+    line-height: 1.3;
+    font-weight: 400;
+    font-style: italic;
+    color: var(--color-ink);
+    max-width: 36ch;
+    font-variation-settings: "opsz" 60, "SOFT" 50;
+  }
+
+  /* ---- Gallery ---- */
+  .work__gallery {
+    padding: var(--spacing-12) var(--spacing-8) var(--spacing-8);
+    max-width: var(--container-wide);
+    margin: 0 auto;
+    border-top: 1px solid var(--color-rule);
+  }
+
+  .work__gal-head {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: baseline;
+    gap: var(--spacing-4);
+    margin-bottom: var(--spacing-8);
+  }
+
+  .work__gal-num {
+    color: var(--work-color);
+  }
+
+  .work__gal-title {
+    font-family: var(--font-display);
+    font-size: var(--text-3xl);
+    font-weight: 500;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    font-variation-settings: "opsz" 60, "SOFT" 30;
+    color: var(--color-ink);
+    margin: 0;
+  }
+
+  .work__gal-sub {
+    font-family: var(--font-sans);
+    font-size: var(--text-sm);
+    color: var(--color-mute);
+    text-align: right;
+    margin: 0;
+  }
+
+  .work__gal-grid {
+    display: grid;
+    gap: var(--spacing-4);
+  }
+
+  .work__gal-grid--views {
+    grid-template-columns: 1.5fr 1fr 1fr 1fr 1.5fr;
+  }
+
+  .work__gal-grid--stickers {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .work__gal-item {
+    margin: 0;
+  }
+
+  .work__gal-frame {
+    background-color: var(--color-paper);
+    border: 1px solid var(--color-rule);
+    aspect-ratio: 1 / 1;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    transition: border-color var(--duration-base) var(--ease-out-soft);
+  }
+
+  .work__gal-frame:hover {
+    border-color: var(--work-color);
+  }
+
+  .work__gal-frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    padding: var(--spacing-3);
+  }
+
+  .work__gal-frame--sticker {
+    aspect-ratio: 1 / 1;
+    background-color: var(--color-paper);
+  }
+
+  .work__gal-cap {
+    margin-top: var(--spacing-2);
+    text-align: center;
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+  }
+
+  /* ---- Footer ---- */
+  .work__foot {
+    padding: var(--spacing-8) var(--spacing-8) var(--spacing-16);
+    max-width: var(--container-wide);
+    margin: 0 auto;
+    border-top: 1px solid var(--color-rule);
+  }
+
+  .work__back {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6em;
+    font-family: var(--font-sans);
+    font-size: var(--text-sm);
+    color: var(--color-ink);
+    text-decoration: none;
+    padding: 0.5em 0;
+    letter-spacing: 0.02em;
+  }
+
+  .work__back:hover {
+    color: var(--work-color);
+  }
+
+  @media (max-width: 1024px) {
+    .work__gal-grid--views {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  @media (max-width: 768px) {
+    .work__gal-grid--views {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .work__gal-grid--stickers {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .work__gal-head {
+      grid-template-columns: 1fr;
+      gap: var(--spacing-2);
+    }
+    .work__gal-sub {
+      text-align: left;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .work__head, .work__body, .work__foot, .work__cover, .work__gallery {
+      padding-left: var(--spacing-4);
+      padding-right: var(--spacing-4);
+    }
+    .work__title {
+      font-size: var(--text-4xl);
+    }
+  }
+</style>

@@ -1,0 +1,144 @@
+---
+import { TRACK_META } from "~/lib/site";
+import ColorTag from "./ColorTag.astro";
+import type { Work } from "~/lib/works";
+
+interface Props {
+  work: Work;
+  index: number;
+}
+
+const { work, index } = Astro.props;
+const track = TRACK_META[work.data.track];
+const num = String(index + 1).padStart(3, "0");
+const yearCN = ["〇", "一", "二", "三", "四", "五", "六", "七", "八", "九"];
+const year = work.data.year;
+const yearString = String(year)
+  .split("")
+  .map((d) => yearCN[Number(d)])
+  .join("");
+---
+
+<a href={`/works/${work.id}/`} class="wrow" data-track={work.data.track}>
+  <span class="wrow__num t-num">{num}</span>
+  <span class="wrow__rule" aria-hidden="true"></span>
+  <div class="wrow__main">
+    <h3 class="wrow__title">{work.data.title}</h3>
+    {work.data.subtitle && <p class="wrow__sub">{work.data.subtitle}</p>}
+  </div>
+  <span class="wrow__track" data-track={work.data.track}>{track.label}</span>
+  <ColorTag color={work.data.color} />
+  <span class="t-num wrow__year">{yearString}</span>
+  <span class="wrow__arrow" aria-hidden="true">→</span>
+</a>
+
+<style>
+  .wrow {
+    display: grid;
+    grid-template-columns: 4ch 4ch 1fr auto auto auto 2ch;
+    align-items: baseline;
+    gap: var(--spacing-4);
+    padding: var(--spacing-6) 0;
+    border-top: 1px solid var(--color-rule);
+    text-decoration: none;
+    color: var(--color-ink);
+    transition: padding-left var(--duration-base) var(--ease-out-soft);
+  }
+
+  .wrow:last-child {
+    border-bottom: 1px solid var(--color-rule);
+  }
+
+  .wrow:hover {
+    text-decoration: none;
+    padding-left: var(--spacing-3);
+  }
+
+  .wrow__num {
+    font-size: var(--text-sm);
+    color: var(--color-mute);
+    font-weight: 400;
+  }
+
+  .wrow__rule {
+    height: 1px;
+    background-color: currentColor;
+    align-self: center;
+    opacity: 0.3;
+    transform-origin: left;
+  }
+
+  .wrow__main {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-1);
+  }
+
+  .wrow__title {
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    line-height: 1.1;
+    font-weight: 500;
+    letter-spacing: -0.015em;
+    font-variation-settings: "opsz" 60, "SOFT" 30;
+    margin: 0;
+  }
+
+  .wrow__sub {
+    font-family: var(--font-sans);
+    font-size: var(--text-sm);
+    color: var(--color-mute);
+    line-height: 1.4;
+    margin: 0;
+  }
+
+  .wrow__track {
+    font-family: var(--font-sans);
+    font-size: var(--text-xs);
+    color: var(--color-ink);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+
+  .wrow__track[data-track="design"] {
+    color: var(--color-cinnabar);
+  }
+  .wrow__track[data-track="research"] {
+    color: var(--color-cobalt);
+  }
+  .wrow__track[data-track="tooling"] {
+    color: var(--color-ochre);
+  }
+
+  .wrow__year {
+    font-size: var(--text-sm);
+    color: var(--color-mute);
+  }
+
+  .wrow__arrow {
+    font-size: var(--text-base);
+    color: var(--color-mute);
+    transition: transform var(--duration-base) var(--ease-out-soft), color var(--duration-base) var(--ease-out-soft);
+  }
+
+  .wrow:hover .wrow__arrow {
+    transform: translateX(4px);
+    color: var(--color-ink);
+  }
+
+  @media (max-width: 768px) {
+    .wrow {
+      grid-template-columns: 3ch 1fr auto 2ch;
+      gap: var(--spacing-3);
+    }
+    .wrow__rule,
+    .wrow__track,
+    .wrow__year {
+      display: none;
+    }
+    .wrow__title {
+      font-size: var(--text-xl);
+    }
+  }
+</style>

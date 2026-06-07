@@ -1,0 +1,214 @@
+---
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import PageHeader from "~/components/layout/PageHeader.astro";
+import SectionLabel from "~/components/typography/SectionLabel.astro";
+import { getAllWorks } from "~/lib/works";
+
+const works = await getAllWorks();
+const research = works.filter((w) => w.data.track === "research");
+---
+
+<BaseLayout title="Research" description="学术研究与方法论。">
+  <PageHeader
+    kicker="Research"
+    title="研究"
+    subtitle="在 PRISMA 系统综述、LLM 知识图谱、3D 重建之间，寻找能让复杂事情被读懂的结构。"
+    meta="学术研究 · 方法论 · 工具流"
+  />
+
+  <section class="block">
+    <div class="block__inner">
+      <SectionLabel label="Projects" num={`№ ${String(research.length).padStart(2, "0")}`} />
+
+      <ul class="proj">
+        {
+          research.map((w) => (
+            <li class="proj__item">
+              <a href={`/works/${w.id}/`} class="proj__link">
+                <div class="proj__head">
+                  <h3 class="proj__title">{w.data.title}</h3>
+                  <span class="t-num proj__year">
+                    {String(w.data.year)}
+                  </span>
+                </div>
+                {w.data.subtitle && <p class="proj__sub">{w.data.subtitle}</p>}
+                <p class="proj__summary">{w.data.summary}</p>
+                <div class="proj__tags">
+                  {w.data.tags.map((t) => <span class="proj__tag">{t}</span>)}
+                </div>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="block__inner">
+      <SectionLabel label="Methods" num="Methodology" />
+
+      <div class="methods">
+        <div class="method">
+          <p class="t-kicker method__kicker">01 · PRISMA 2020</p>
+          <p class="method__title">系统综述</p>
+          <p class="method__body">
+            严格遵循 PRISMA 2020 流程：Identification → Screening → Included。中英双轨，
+            字段代码适配（SU/M= 等），阶段 CSV 化追溯。
+          </p>
+        </div>
+        <div class="method">
+          <p class="t-kicker method__kicker">02 · LLM-as-Assisted</p>
+          <p class="method__title">知识图谱构建</p>
+          <p class="method__body">
+            用本地部署的 Qwen2.5-3B 辅助实体关系抽取，KG pipeline 正则从 <code>\w</code> 升级到
+            <code>[一-鿿]</code>，中英双轨质量提升。
+          </p>
+        </div>
+        <div class="method">
+          <p class="t-kicker method__kicker">03 · MVS 评测</p>
+          <p class="method__title">3D 重建基准</p>
+          <p class="method__body">
+            DTU MVS 数据集为基线，结合博物馆文物自建 GT，模拟评测不同重建质量。
+            指标含 Accuracy / Completeness / Chamfer Distance。
+          </p>
+        </div>
+        <div class="method">
+          <p class="t-kicker method__kicker">04 · Toolchain</p>
+          <p class="method__title">研究工具流</p>
+          <p class="method__body">
+            Zotero 9 + Jasminum + Zoplicate 解决中文文献去重；
+            Ollama 部署本地 LLM；Claude Code 辅助检索式构造。
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .block {
+    padding: 0 var(--spacing-8) var(--spacing-16);
+    max-width: var(--container-wide);
+    margin: 0 auto;
+  }
+  .block__inner {
+    width: 100%;
+  }
+
+  .proj {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .proj__item {
+    border-top: 1px solid var(--color-rule);
+  }
+  .proj__item:last-child {
+    border-bottom: 1px solid var(--color-rule);
+  }
+  .proj__link {
+    display: block;
+    padding: var(--spacing-8) 0;
+    text-decoration: none;
+    color: var(--color-ink);
+    transition: padding-left var(--duration-base) var(--ease-out-soft);
+  }
+  .proj__link:hover {
+    padding-left: var(--spacing-3);
+    text-decoration: none;
+  }
+  .proj__head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--spacing-6);
+    margin-bottom: var(--spacing-3);
+  }
+  .proj__title {
+    font-family: var(--font-display);
+    font-size: var(--text-3xl);
+    line-height: 1.1;
+    font-weight: 500;
+    font-variation-settings: "opsz" 60, "SOFT" 30;
+    margin: 0;
+  }
+  .proj__year {
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    color: var(--color-mute);
+    letter-spacing: 0.04em;
+  }
+  .proj__sub {
+    font-family: var(--font-serif);
+    font-size: var(--text-lg);
+    color: var(--color-ink);
+    line-height: 1.5;
+    margin: 0 0 var(--spacing-3);
+  }
+  .proj__summary {
+    font-family: var(--font-sans);
+    font-size: var(--text-base);
+    color: var(--color-mute);
+    line-height: 1.6;
+    margin: 0 0 var(--spacing-4);
+    max-width: 60ch;
+  }
+  .proj__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-2);
+  }
+  .proj__tag {
+    font-family: var(--font-sans);
+    font-size: var(--text-xs);
+    color: var(--color-mute);
+    padding: 0.25em 0.6em;
+    border: 1px solid var(--color-rule);
+    letter-spacing: 0.04em;
+  }
+
+  .methods {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-8);
+    border-top: 1px solid var(--color-rule);
+    padding-top: var(--spacing-8);
+  }
+  .method {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-3);
+    padding-right: var(--spacing-4);
+  }
+  .method__kicker {
+    color: var(--color-cobalt);
+  }
+  .method__title {
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    font-weight: 500;
+    line-height: 1.2;
+    font-variation-settings: "opsz" 60, "SOFT" 30;
+    margin: 0;
+  }
+  .method__body {
+    font-family: var(--font-sans);
+    font-size: var(--text-base);
+    line-height: 1.65;
+    color: var(--color-ink);
+    margin: 0;
+  }
+  .method__body code {
+    font-family: var(--font-mono);
+    font-size: 0.88em;
+    padding: 0.1em 0.3em;
+    border: 1px solid var(--color-rule);
+    color: var(--color-cobalt);
+  }
+
+  @media (max-width: 768px) {
+    .methods { grid-template-columns: 1fr; }
+    .block { padding-left: var(--spacing-4); padding-right: var(--spacing-4); }
+  }
+</style>

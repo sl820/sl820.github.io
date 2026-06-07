@@ -1,0 +1,138 @@
+---
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import PageHeader from "~/components/layout/PageHeader.astro";
+import { SITE } from "~/lib/site";
+---
+
+<BaseLayout title="Contact" description="联系方式">
+  <PageHeader
+    kicker="Contact"
+    title="联系"
+    subtitle="欢迎合作、讨论、或只是说一句你好。"
+  />
+
+  <section class="contact">
+    <div class="contact__inner">
+      <ul class="contact__list">
+        <li class="contact__item">
+          <p class="t-kicker contact__key">Email</p>
+          <a href={`mailto:${SITE.email}`} class="contact__val">
+            {SITE.email}
+          </a>
+          <p class="contact__note">— 24h 内回复（学术合作请附简介）</p>
+        </li>
+
+        <li class="contact__item">
+          <p class="t-kicker contact__key">GitHub</p>
+          <a href="https://github.com/sl820" rel="me noopener" target="_blank" class="contact__val">
+            github.com/sl820
+          </a>
+          <p class="contact__note">— 我的代码、Issue、PR</p>
+        </li>
+
+        <li class="contact__item">
+          <p class="t-kicker contact__key">WeChat</p>
+          <p class="contact__val contact__val--text">扫码 / 邮件索取</p>
+          <p class="contact__note">— 不公开发二维码</p>
+        </li>
+
+        <li class="contact__item">
+          <p class="t-kicker contact__key">RSS</p>
+          <a href="/rss.xml" class="contact__val">/rss.xml</a>
+          <p class="contact__note">— 订阅 Notes</p>
+        </li>
+      </ul>
+
+      <div class="contact__close">
+        <p class="contact__close-line">
+          <span class="contact__close-mark">—</span>
+          期待下一次相遇。
+        </p>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .contact {
+    padding: 0 var(--spacing-8) var(--spacing-24);
+    max-width: var(--container-wide);
+    margin: 0 auto;
+  }
+  .contact__inner {
+    max-width: var(--container-narrow);
+  }
+  .contact__list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .contact__item {
+    padding: var(--spacing-8) 0;
+    border-top: 1px solid var(--color-rule);
+    display: grid;
+    grid-template-columns: 8rem 1fr;
+    gap: var(--spacing-6) var(--spacing-8);
+    align-items: baseline;
+  }
+  .contact__item:last-child {
+    border-bottom: 1px solid var(--color-rule);
+  }
+  .contact__key {
+    color: var(--color-mute);
+  }
+  .contact__val {
+    font-family: var(--font-display);
+    font-size: var(--text-3xl);
+    font-weight: 400;
+    letter-spacing: -0.02em;
+    text-decoration: none;
+    color: var(--color-ink);
+    line-height: 1.1;
+    font-variation-settings: "opsz" 60, "SOFT" 30;
+  }
+  .contact__val--text {
+    color: var(--color-mute);
+    font-style: italic;
+    font-size: var(--text-2xl);
+  }
+  .contact__val:hover {
+    color: var(--color-cinnabar);
+  }
+  .contact__note {
+    grid-column: 2;
+    font-family: var(--font-sans);
+    font-size: var(--text-sm);
+    color: var(--color-mute);
+    margin: 0;
+  }
+
+  .contact__close {
+    margin-top: var(--spacing-24);
+    text-align: center;
+  }
+  .contact__close-line {
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    color: var(--color-mute);
+    font-style: italic;
+    font-variation-settings: "opsz" 30, "SOFT" 50;
+  }
+  .contact__close-mark {
+    color: var(--color-cinnabar);
+    margin-right: 0.5em;
+  }
+
+  @media (max-width: 640px) {
+    .contact__item {
+      grid-template-columns: 1fr;
+      gap: var(--spacing-2);
+    }
+    .contact__note {
+      grid-column: 1;
+    }
+    .contact__val {
+      font-size: var(--text-2xl);
+    }
+  }
+</style>

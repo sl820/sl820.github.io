@@ -1,0 +1,40 @@
+---
+title: DTU 评测系统集成
+subtitle: MVS 点云评测集交付博物馆评测系统
+track: tooling
+year: 2026
+date: 2026-04-22
+color: ochre
+role: 工程师
+tags: [dtu, mvs, benchmark, point-cloud, 3d-reconstruction, evaluation]
+summary: 把 DTU MVS 数据集的标准评测指标（Accuracy / Completeness / Chamfer Distance）打包为可复用的 Python 模块。
+---
+
+## 背景
+
+DTU（Danish Technical University）MVS 数据集是 3D 重建领域的金标准评测集。
+但原始评测脚本散落在多个 commit 里，且 metric 定义在不同文献中有微妙差异。
+
+## 打包
+
+```python
+from museum_dtu_evaluation import evaluate
+
+result = evaluate(
+    pred_points="reconstruction.ply",
+    gt_points="groundtruth.ply",
+    eval_points="Points/stl/stl.ply",
+)
+print(result.accuracy, result.completeness, result.chamfer)
+```
+
+## 三个核心 metric
+
+- **Accuracy**：预测点到 GT 的平均距离
+- **Completeness**：GT 点到预测的平均距离
+- **Chamfer Distance**：上述两者的对称平均
+
+## 特色
+
+支持**自建 GT**：用博物馆文物自身的精细点云作为参考，模拟评测不同重建质量。
+这解决了「博物馆专用评测集缺失」的痛点。

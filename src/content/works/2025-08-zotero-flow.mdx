@@ -1,0 +1,42 @@
+---
+title: Zotero 工具流
+subtitle: Zotero 9 + Jasminum + Zoplicate 中文文献去重与抓取
+track: tooling
+year: 2025
+date: 2025-08-12
+color: ochre
+role: 工具开发者
+tags: [zotero, jasminum, zoplicate, reference-manager, chinese-academic]
+summary: 为 PRISMA 系统综述定制 Zotero 工作流：中文去重、CNKI 抓取、PDF 自动重命名。
+---
+
+## 环境
+
+- Zotero 9.0.4
+- Profile: `c2asbvaq.default`
+- 路径：`C:\Program Files\Zotero`
+
+## 三个核心插件
+
+### Jasminum
+
+中文文献元数据抓取。CNKI / Wanfang / 读秀 都能识别。
+
+### Zoplicate
+
+智能去重，**比 Zotero 内置去重更激进**。
+对中文学术文献的常见问题（同一论文被 CNKI / 万方 / 维普 三次收录）有效。
+
+### Translate for Zotero
+
+沉浸式翻译。读英文文献时直接整页翻译。
+
+## 批量安装
+
+关 Zotero → 写 `extensions.json` → 删 `addonStartup.json.lz4` → 重启。
+脚本在 `~/Downloads/zotero-plugins/install_plugins.py`。
+
+## 验证
+
+装插件前先 unzip 插件 xpi 看 `manifest.json` 里的 `strict_max_version`。
+**Zotero 9 还在 bleeding edge**，很多插件没更新兼容性。

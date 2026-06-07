@@ -1,0 +1,47 @@
+---
+title: 智慧博物馆 3D 重建
+subtitle: AI 3D 重建在博物馆场景中的 PRISMA 系统综述
+track: research
+year: 2026
+date: 2026-05-15
+color: cobalt
+role: 唯一作者
+location: 苏州 / 杭州
+tags: [prisma, 3d-reconstruction, museum, neural-radiance-field, gaussian-splatting, systematic-review]
+summary: 严格遵循 PRISMA 2020 流程，对 AI 3D 重建技术在博物馆文物数字化场景中的应用进行系统综述。中英双轨，97 篇最终纳入。
+featured: true
+---
+
+## 背景
+
+NeRF / 3D Gaussian Splatting / 多视图立体视觉 在 2019–2025 期间爆发。
+博物馆场景对 **精度、纹理保真度、低光鲁棒性、文化敏感性** 的要求与通用场景不同。
+
+## 方法
+
+- 协议：PRISMA 2020（Identification → Screening → Included）
+- 数据源：CNKI / 维普 / Wanfang / Web of Science / Scopus / IEEE Xplore / ACM DL
+- 检索式：分平台构造，字段代码对齐（CNKI `SU=` / 维普 `M=`）
+- 筛选：3 阶段 — 标题/摘要 → 全文 → 纳入
+- 决策字段：A2 / B2 / C2 三层
+
+## 结果
+
+| 阶段 | 中 | 英 | 合计 |
+|---|---|---|---|
+| Identification | 3,863 | 2,524 | 6,387 |
+| Screening | 2,039 | 3,582 | 5,621 |
+| Included | 558 | 475 | 1,033 |
+| Final | 50 | 40 | 90 |
+
+## 关键发现
+
+- NeRF 在低光纹理下表现弱，3DGS 在稀疏视角下退化
+- 博物馆专用评测集缺失，多数研究沿用 DTU / Tanks and Temples
+- **文化敏感性** 几乎不被现有方法论讨论（最大研究空白）
+
+## 产出
+
+- PRISMA 流程图
+- 90 篇最终清单（CSV 化，可追溯）
+- 时期分布统计

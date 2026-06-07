@@ -1,0 +1,162 @@
+---
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import PageHeader from "~/components/layout/PageHeader.astro";
+import { SITE } from "~/lib/site";
+
+const timeline = [
+  { year: "2026", title: "晶澜智汇 IP 设计竞赛 · 苏州工业园区", note: "主创设计师" },
+  { year: "2026", title: "智慧博物馆 3D 重建 PRISMA 综述", note: "PRISMA 2020 完整流程" },
+  { year: "2025", title: "DTU 评测系统集成 · 博物馆文物评测", note: "开源交付" },
+  { year: "2025", title: "LLM 知识图谱 pipeline · Qwen2.5-3B 部署", note: "本地化、零外部依赖" },
+  { year: "2025", title: "公共图书馆研学理论 PRISMA 综述", note: "中英双轨 50 + 40 篇" },
+  { year: "2024", title: "Zotero 9 工具流 · Jasminum + Zoplicate 集成", note: "中文文献去重与抓取" },
+  { year: "2024", title: "金戈尊世界模型 · 启物博言训练", note: "商代青铜酒尊 · 8 场景" },
+];
+---
+
+<BaseLayout title="About" description={SITE.bio}>
+  <PageHeader
+    kicker="About"
+    title="关于"
+    subtitle="一个在算法、器物与排版之间寻找结构的人。"
+    meta="苏州 / 杭州 · since 2024"
+  />
+
+  <section class="bio">
+    <div class="bio__inner">
+      <div class="t-prose bio__prose">
+        <p>
+          我是{SITE.name}。在算法、器物与排版之间，建造<strong>可被阅读的系统</strong>。
+        </p>
+        <p>
+          学术研究上，专注 PRISMA 系统综述、LLM 知识图谱、3D 重建评测。中英双轨，
+          工具链自建，方法论可追溯。设计上，做角色、形象、品牌、出版物排版。
+          两者并非平行——都是同一个问题的不同切面：<em>什么样的结构，能让复杂的事物被普通读者读进去</em>。
+        </p>
+        <p>
+          写字用思源宋体配 Fraunces，代码用 JetBrains Mono。本地 LLM 跑 Qwen2.5-3B，
+          Zotero 跑在 9.0.4 的 Profile <code>c2asbvaq</code> 上，Claude Code 装在 <code>~/Claudecode</code>。
+          工作的机器是 Win11，bash 壳是 Git Bash，D 盘是工作盘，C 盘是 Claude 记忆盘。
+        </p>
+        <h2>我关心的问题</h2>
+        <p>
+          <strong>信息密度</strong>。什么时候一个字够，什么时候一万字不够。<br/>
+          <strong>载体匹配</strong>。同样的内容用论文、博客、图集、代码注释、海报，
+          结构应该不同。<br/>
+          <strong>可追溯性</strong>。一个结论背后跑了哪些脚本、读了哪些文献、用了哪些模型，
+          三年后还能不能复原。
+        </p>
+        <h2>我不做的事</h2>
+        <p>
+          模态弹窗。<br/>
+          彩虹渐变。<br/>
+          圆角 + drop-shadow 的卡片。<br/>
+          模板套娃（fork 后不改直接用）。<br/>
+          把 emoji 当 UI 元素。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="timeline">
+    <div class="timeline__inner">
+      <p class="t-kicker timeline__kicker">Timeline</p>
+      <ol class="timeline__list">
+        {
+          timeline.map((item) => (
+            <li class="timeline__item">
+              <span class="t-num timeline__year">{item.year}</span>
+              <span class="timeline__title">{item.title}</span>
+              <span class="timeline__note">{item.note}</span>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .bio {
+    padding: 0 var(--spacing-8);
+    max-width: var(--container-wide);
+    margin: 0 auto var(--spacing-24);
+  }
+  .bio__inner {
+    max-width: var(--container-narrow);
+  }
+  .bio__prose {
+    margin: 0;
+  }
+  .bio__prose strong {
+    font-weight: 500;
+    color: var(--color-ink);
+    border-bottom: 1px solid var(--color-cinnabar);
+  }
+  .bio__prose em {
+    font-family: var(--font-display);
+    font-style: italic;
+    color: var(--color-cinnabar);
+    font-variation-settings: "opsz" 30, "SOFT" 50;
+  }
+
+  .timeline {
+    padding: var(--spacing-12) var(--spacing-8) var(--spacing-24);
+    max-width: var(--container-wide);
+    margin: 0 auto;
+    border-top: 1px solid var(--color-rule);
+  }
+  .timeline__kicker {
+    color: var(--color-mute);
+    margin-bottom: var(--spacing-6);
+  }
+  .timeline__list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .timeline__item {
+    display: grid;
+    grid-template-columns: 6rem 1fr 1fr;
+    gap: var(--spacing-6);
+    align-items: baseline;
+    padding: var(--spacing-5) 0;
+    border-top: 1px solid var(--color-rule);
+  }
+  .timeline__item:last-child {
+    border-bottom: 1px solid var(--color-rule);
+  }
+  .timeline__year {
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    color: var(--color-mute);
+    letter-spacing: 0.04em;
+  }
+  .timeline__title {
+    font-family: var(--font-display);
+    font-size: var(--text-lg);
+    font-weight: 500;
+    color: var(--color-ink);
+    line-height: 1.3;
+  }
+  .timeline__note {
+    font-family: var(--font-sans);
+    font-size: var(--text-sm);
+    color: var(--color-mute);
+    text-align: right;
+  }
+
+  @media (max-width: 768px) {
+    .bio, .timeline {
+      padding-left: var(--spacing-4);
+      padding-right: var(--spacing-4);
+    }
+    .timeline__item {
+      grid-template-columns: 5rem 1fr;
+    }
+    .timeline__note {
+      grid-column: 1 / -1;
+      text-align: left;
+    }
+  }
+</style>

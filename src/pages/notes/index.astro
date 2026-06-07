@@ -1,0 +1,123 @@
+---
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import PageHeader from "~/components/layout/PageHeader.astro";
+import SectionLabel from "~/components/typography/SectionLabel.astro";
+import { getCollection } from "astro:content";
+
+const notes = (await getCollection("notes", ({ data }) => !data.draft))
+  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+---
+
+<BaseLayout title="Notes" description="随笔、笔记、思考。">
+  <PageHeader
+    kicker="Notes"
+    title="随笔"
+    subtitle="长程思考的零碎落点。读什么、想什么、做什么。"
+    meta="博客 · 笔记 · 评论"
+  />
+
+  <section class="list">
+    <div class="list__inner">
+      <SectionLabel label="All Notes" num={`№ ${String(notes.length).padStart(2, "0")}`} />
+
+      {
+        notes.length === 0 ? (
+          <p class="list__empty">
+            还没有笔记。<br />
+            <span class="list__empty-sub">在建中。</span>
+          </p>
+        ) : (
+          <ul class="notes">
+            {notes.map((note) => (
+              <li class="note">
+                <a href={`/notes/${note.id}/`} class="note__link">
+                  <span class="t-num note__date">
+                    {note.data.date.toISOString().slice(0, 10)}
+                  </span>
+                  <span class="note__title">{note.data.title}</span>
+                  {note.data.summary && <span class="note__summary">{note.data.summary}</span>}
+                </a>
+              </li>
+            ))}
+          </ul>
+        )
+      }
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .list {
+    padding: 0 var(--spacing-8) var(--spacing-24);
+    max-width: var(--container-wide);
+    margin: 0 auto;
+  }
+  .list__inner {
+    width: 100%;
+  }
+  .list__empty {
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    color: var(--color-mute);
+    text-align: center;
+    padding: var(--spacing-16) 0;
+    line-height: 1.4;
+  }
+  .list__empty-sub {
+    font-size: var(--text-base);
+    color: var(--color-mute);
+  }
+
+  .notes {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .note {
+    border-top: 1px solid var(--color-rule);
+  }
+  .note:last-child {
+    border-bottom: 1px solid var(--color-rule);
+  }
+  .note__link {
+    display: grid;
+    grid-template-columns: 10rem 1fr 1.5fr;
+    gap: var(--spacing-6);
+    padding: var(--spacing-6) 0;
+    text-decoration: none;
+    color: var(--color-ink);
+    align-items: baseline;
+    transition: padding-left var(--duration-base) var(--ease-out-soft);
+  }
+  .note__link:hover {
+    padding-left: var(--spacing-3);
+    text-decoration: none;
+  }
+  .note__date {
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    color: var(--color-mute);
+    letter-spacing: 0.04em;
+  }
+  .note__title {
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    font-weight: 500;
+    line-height: 1.2;
+    font-variation-settings: "opsz" 60, "SOFT" 30;
+    color: var(--color-ink);
+  }
+  .note__summary {
+    font-family: var(--font-sans);
+    font-size: var(--text-sm);
+    color: var(--color-mute);
+    line-height: 1.5;
+  }
+
+  @media (max-width: 768px) {
+    .note__link {
+      grid-template-columns: 1fr;
+      gap: var(--spacing-2);
+    }
+  }
+</style>

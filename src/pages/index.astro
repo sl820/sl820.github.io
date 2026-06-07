@@ -1,0 +1,496 @@
+---
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import { SITE } from "~/lib/site";
+import { getAllWorks } from "~/lib/works";
+import WorkRow from "~/components/works/WorkRow.astro";
+import SectionLabel from "~/components/typography/SectionLabel.astro";
+
+const works = await getAllWorks();
+
+// 三轨分组
+const grouped = {
+  design: works.filter((w) => w.data.track === "design"),
+  research: works.filter((w) => w.data.track === "research"),
+  tooling: works.filter((w) => w.data.track === "tooling"),
+};
+
+// 计数
+const counts = {
+  design: grouped.design.length,
+  research: grouped.research.length,
+  tooling: grouped.tooling.length,
+  total: works.length,
+};
+
+const yearCN = ["〇", "一", "二", "三", "四", "五", "六", "七", "八", "九"];
+const yearString = String(SITE.year)
+  .split("")
+  .map((d) => yearCN[Number(d)])
+  .join("");
+---
+
+<BaseLayout
+  description={SITE.tagline}
+  pageClass="page-home"
+>
+  <!-- ============================================================ -->
+  <!--  HERO                                                         -->
+  <!-- ============================================================ -->
+  <section class="hero">
+    <div class="hero__inner">
+      <p class="t-kicker hero__kicker">
+        <span class="hero__kicker-dot" aria-hidden="true"></span>
+        设计师 / 研究者 / 长程工作者
+      </p>
+
+      <h1 class="hero__name">
+        <span class="hero__name-cn">萧博实</span>
+        <span class="hero__name-en" lang="en">Hbu Sl</span>
+      </h1>
+
+      <div class="hero__meta">
+        <span>{SITE.location}</span>
+        <span class="hero__meta-sep" aria-hidden="true">·</span>
+        <span>since <span class="t-num">{yearString}</span></span>
+      </div>
+
+      <p class="hero__tagline">
+        {SITE.tagline}
+      </p>
+
+      <p class="hero__tagline-en" lang="en">
+        {SITE.taglineEn}
+      </p>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!--  INDEX · 全部作品                                             -->
+  <!-- ============================================================ -->
+  <section class="section index">
+    <div class="section__inner">
+      <SectionLabel label="Selected Works" num={`№ 001 — ${String(works.length).padStart(3, "0")}`} />
+
+      <div class="index__list">
+        {works.map((work, i) => <WorkRow work={work} index={i} />)}
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!--  INDEX · 按轨道                                                -->
+  <!-- ============================================================ -->
+  <section class="section tracks">
+    <div class="section__inner">
+      <SectionLabel label="By Track" num="№ 002" />
+
+      <div class="tracks__grid">
+        <a href="/works" data-filter="all" class="track">
+          <p class="t-kicker track__kicker">All</p>
+          <p class="track__num t-num">{String(counts.total).padStart(2, "0")}</p>
+          <p class="track__label">全部作品</p>
+          <p class="track__sub">Selected works · {SITE.year}</p>
+        </a>
+
+        <a href="/works/design" data-filter="design" class="track" style="--track-color: var(--color-cinnabar);">
+          <p class="t-kicker track__kicker">Design</p>
+          <p class="track__num t-num">{String(counts.design).padStart(2, "0")}</p>
+          <p class="track__label">设计</p>
+          <p class="track__sub">视觉 · 形象 · 品牌</p>
+        </a>
+
+        <a href="/works/research" data-filter="research" class="track" style="--track-color: var(--color-cobalt);">
+          <p class="t-kicker track__kicker">Research</p>
+          <p class="track__num t-num">{String(counts.research).padStart(2, "0")}</p>
+          <p class="track__label">研究</p>
+          <p class="track__sub">系统综述 · 知识图谱</p>
+        </a>
+
+        <a href="/works/tooling" data-filter="tooling" class="track" style="--track-color: var(--color-ochre);">
+          <p class="t-kicker track__kicker">Tooling</p>
+          <p class="track__num t-num">{String(counts.tooling).padStart(2, "0")}</p>
+          <p class="track__label">工具</p>
+          <p class="track__sub">脚本 · 插件 · 部署</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!--  ABOUT 简介                                                   -->
+  <!-- ============================================================ -->
+  <section class="section about">
+    <div class="section__inner">
+      <SectionLabel label="About" num="№ 003" />
+
+      <div class="about__grid">
+        <p class="about__lead">{SITE.bio}</p>
+
+        <div class="about__meta">
+          <dl>
+            <div>
+              <dt class="t-kicker">坐标</dt>
+              <dd>{SITE.location}</dd>
+            </div>
+            <div>
+              <dt class="t-kicker">关注</dt>
+              <dd>PRISMA · LLM KG · 3D 重建 · 排版</dd>
+            </div>
+            <div>
+              <dt class="t-kicker">语言</dt>
+              <dd>中文 · English</dd>
+            </div>
+            <div>
+              <dt class="t-kicker">角色</dt>
+              <dd>设计师 / 学术研究者</dd>
+            </div>
+          </dl>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!--  CONTACT                                                      -->
+  <!-- ============================================================ -->
+  <section class="section contact">
+    <div class="section__inner">
+      <SectionLabel label="Contact" num="№ 004" />
+
+      <ul class="contact__list">
+        {
+          SITE.social.map((item) => (
+            <li class="contact__item">
+              <span class="t-kicker contact__key">{item.label}</span>
+              <a href={item.href} class="contact__val" rel="me noopener" target={item.href.startsWith("http") ? "_blank" : undefined}>
+                {item.href.replace(/^https?:\/\//, "").replace(/^mailto:/, "")}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+
+      <p class="contact__close">
+        <span class="contact__close-mark" aria-hidden="true">—</span>
+        期待下一次相遇。
+      </p>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .page-home {
+    --gutter: var(--spacing-8);
+  }
+
+  /* ---------------- HERO ---------------- */
+  .hero {
+    padding: var(--spacing-32) var(--gutter) var(--spacing-24);
+    max-width: var(--container-wide);
+    margin: 0 auto;
+  }
+
+  .hero__inner {
+    max-width: 100%;
+  }
+
+  .hero__kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6em;
+    margin-bottom: var(--spacing-12);
+    color: var(--color-mute);
+  }
+
+  .hero__kicker-dot {
+    width: 0.5em;
+    height: 0.5em;
+    background-color: var(--color-cinnabar);
+    border-radius: 50%;
+    display: inline-block;
+  }
+
+  .hero__name {
+    margin: 0 0 var(--spacing-8);
+    line-height: 0.85;
+  }
+
+  .hero__name-cn {
+    display: block;
+    font-family: var(--font-display);
+    font-size: var(--text-hero);
+    line-height: 0.85;
+    letter-spacing: -0.05em;
+    font-weight: 400;
+    font-variation-settings: "opsz" 144, "SOFT" 50;
+    color: var(--color-ink);
+  }
+
+  .hero__name-en {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: var(--text-2xl);
+    font-weight: 400;
+    letter-spacing: -0.01em;
+    color: var(--color-mute);
+    margin-top: var(--spacing-4);
+  }
+
+  .hero__meta {
+    display: flex;
+    align-items: center;
+    gap: 0.6em;
+    font-family: var(--font-sans);
+    font-size: var(--text-sm);
+    color: var(--color-mute);
+    margin-bottom: var(--spacing-16);
+  }
+
+  .hero__meta-sep {
+    color: var(--color-rule);
+  }
+
+  .hero__tagline {
+    font-family: var(--font-display);
+    font-size: var(--text-4xl);
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+    font-weight: 400;
+    font-variation-settings: "opsz" 100, "SOFT" 30;
+    color: var(--color-ink);
+    max-width: 22ch;
+    margin-bottom: var(--spacing-4);
+  }
+
+  .hero__tagline-en {
+    font-family: var(--font-serif);
+    font-size: var(--text-xl);
+    line-height: 1.45;
+    font-style: italic;
+    font-weight: 400;
+    color: var(--color-mute);
+    max-width: 38ch;
+  }
+
+  /* ---------------- SECTION base ---------------- */
+  .section {
+    padding: var(--spacing-12) var(--gutter);
+    max-width: var(--container-wide);
+    margin: 0 auto;
+  }
+
+  .section__inner {
+    width: 100%;
+  }
+
+  /* ---------------- INDEX ---------------- */
+  .index__list {
+    margin-top: var(--spacing-4);
+  }
+
+  /* ---------------- TRACKS ---------------- */
+  .tracks__grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+    border-top: 1px solid var(--color-rule);
+    border-bottom: 1px solid var(--color-rule);
+  }
+
+  .track {
+    padding: var(--spacing-8) var(--spacing-6);
+    border-right: 1px solid var(--color-rule);
+    text-decoration: none;
+    color: var(--color-ink);
+    transition: background-color var(--duration-base) var(--ease-out-soft);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-3);
+    min-height: 12rem;
+  }
+
+  .track:last-child {
+    border-right: none;
+  }
+
+  .track:hover {
+    background-color: color-mix(in oklab, var(--track-color, var(--color-ink)) 6%, var(--color-paper));
+    text-decoration: none;
+  }
+
+  .track__kicker {
+    color: var(--color-mute);
+  }
+
+  .track__num {
+    font-family: var(--font-display);
+    font-size: clamp(2.5rem, 1.5rem + 4vw, 4.5rem);
+    line-height: 1;
+    font-weight: 400;
+    font-variation-settings: "opsz" 100, "SOFT" 30;
+    color: var(--color-ink);
+    letter-spacing: -0.03em;
+    margin-top: auto;
+  }
+
+  .track__label {
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    font-weight: 500;
+    line-height: 1;
+    font-variation-settings: "opsz" 60, "SOFT" 30;
+    margin-top: var(--spacing-2);
+  }
+
+  .track__sub {
+    font-family: var(--font-sans);
+    font-size: var(--text-xs);
+    color: var(--color-mute);
+    line-height: 1.4;
+  }
+
+  /* ---------------- ABOUT ---------------- */
+  .about__grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: var(--spacing-12);
+    align-items: start;
+  }
+
+  .about__lead {
+    font-family: var(--font-serif);
+    font-size: var(--text-2xl);
+    line-height: 1.55;
+    color: var(--color-ink);
+    font-weight: 400;
+    max-width: 40ch;
+  }
+
+  .about__meta dl {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-4);
+  }
+
+  .about__meta div {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-1);
+    padding-bottom: var(--spacing-3);
+    border-bottom: 1px solid var(--color-rule);
+  }
+
+  .about__meta div:last-child {
+    border-bottom: none;
+  }
+
+  .about__meta dt {
+    color: var(--color-mute);
+  }
+
+  .about__meta dd {
+    font-family: var(--font-sans);
+    font-size: var(--text-sm);
+    color: var(--color-ink);
+    margin: 0;
+  }
+
+  /* ---------------- CONTACT ---------------- */
+  .contact__list {
+    list-style: none;
+    padding: 0;
+    margin: var(--spacing-8) 0;
+  }
+
+  .contact__item {
+    display: grid;
+    grid-template-columns: 8rem 1fr;
+    align-items: baseline;
+    gap: var(--spacing-6);
+    padding: var(--spacing-6) 0;
+    border-top: 1px solid var(--color-rule);
+  }
+
+  .contact__item:last-child {
+    border-bottom: 1px solid var(--color-rule);
+  }
+
+  .contact__key {
+    color: var(--color-mute);
+  }
+
+  .contact__val {
+    font-family: var(--font-display);
+    font-size: var(--text-3xl);
+    font-weight: 400;
+    font-variation-settings: "opsz" 60, "SOFT" 30;
+    letter-spacing: -0.02em;
+    text-decoration: none;
+    color: var(--color-ink);
+    line-height: 1;
+  }
+
+  .contact__val:hover {
+    color: var(--color-cinnabar);
+  }
+
+  .contact__close {
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    color: var(--color-mute);
+    margin-top: var(--spacing-12);
+    font-style: italic;
+    font-variation-settings: "opsz" 30, "SOFT" 50;
+  }
+
+  .contact__close-mark {
+    color: var(--color-cinnabar);
+    margin-right: 0.5em;
+  }
+
+  /* ---------------- responsive ---------------- */
+  @media (max-width: 1024px) {
+    .tracks__grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .track {
+      border-bottom: 1px solid var(--color-rule);
+    }
+    .track:nth-child(2) {
+      border-right: none;
+    }
+    .track:nth-child(3),
+    .track:nth-child(4) {
+      border-bottom: none;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .hero {
+      padding: var(--spacing-16) var(--spacing-4) var(--spacing-12);
+    }
+    .hero__tagline {
+      font-size: var(--text-3xl);
+    }
+    .about__grid {
+      grid-template-columns: 1fr;
+      gap: var(--spacing-8);
+    }
+    .contact__item {
+      grid-template-columns: 1fr;
+      gap: var(--spacing-2);
+    }
+    .contact__val {
+      font-size: var(--text-2xl);
+    }
+  }
+
+  @media (max-width: 480px) {
+    .tracks__grid {
+      grid-template-columns: 1fr;
+    }
+    .track {
+      border-right: none;
+    }
+  }
+</style>

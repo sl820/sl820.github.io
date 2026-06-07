@@ -1,0 +1,139 @@
+---
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import PageHeader from "~/components/layout/PageHeader.astro";
+import SectionLabel from "~/components/typography/SectionLabel.astro";
+import WorkRow from "~/components/works/WorkRow.astro";
+import { getAllWorks, type Work } from "~/lib/works";
+import type { Track } from "~/lib/site";
+
+const allWorks = await getAllWorks();
+
+const path = Astro.url.pathname;
+const activeTrack: Track | "all" = path.endsWith("/design")
+  ? "design"
+  : path.endsWith("/research")
+  ? "research"
+  : path.endsWith("/tooling")
+  ? "tooling"
+  : "all";
+
+const works: Work[] = activeTrack === "all"
+  ? allWorks
+  : allWorks.filter((w) => w.data.track === activeTrack);
+
+const titleMap: Record<typeof activeTrack, { kicker: string; title: string; subtitle: string }> = {
+  all: { kicker: "All Works", title: "作品", subtitle: "Selected works across design, research, and tooling." },
+  design: { kicker: "Design", title: "设计", subtitle: "视觉 · 形象 · 品牌。", },
+  research: { kicker: "Research", title: "研究", subtitle: "系统综述 · 知识图谱 · 3D 重建。", },
+  tooling: { kicker: "Tooling", title: "工具", subtitle: "脚本 · 插件 · 部署。", },
+};
+
+const head = titleMap[activeTrack];
+---
+
+<BaseLayout title={head.title} description={head.subtitle}>
+  <PageHeader kicker={head.kicker} title={head.title} subtitle={head.subtitle} meta={`共 ${works.length} 项`} />
+
+  <section class="filters">
+    <div class="filters__inner">
+      <a
+        href="/works"
+        class:list={["filter", { "filter--active": activeTrack === "all" }]}
+      >
+        All
+        <span class="t-num">{String(allWorks.length).padStart(2, "0")}</span>
+      </a>
+      <a
+        href="/works/design"
+        class:list={["filter", "filter--design", { "filter--active": activeTrack === "design" }]}
+      >
+        Design
+        <span class="t-num">{String(allWorks.filter(w => w.data.track === "design").length).padStart(2, "0")}</span>
+      </a>
+      <a
+        href="/works/research"
+        class:list={["filter", "filter--research", { "filter--active": activeTrack === "research" }]}
+      >
+        Research
+        <span class="t-num">{String(allWorks.filter(w => w.data.track === "research").length).padStart(2, "0")}</span>
+      </a>
+      <a
+        href="/works/tooling"
+        class:list={["filter", "filter--tooling", { "filter--active": activeTrack === "tooling" }]}
+      >
+        Tooling
+        <span class="t-num">{String(allWorks.filter(w => w.data.track === "tooling").length).padStart(2, "0")}</span>
+      </a>
+    </div>
+  </section>
+
+  <section class="list">
+    <div class="list__inner">
+      <SectionLabel label="Index" num={`№ ${String(works.length).padStart(3, "0")}`} />
+      <div class="list__items">
+        {works.map((work, i) => <WorkRow work={work} index={i} />)}
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .filters {
+    padding: 0 var(--spacing-8);
+    max-width: var(--container-wide);
+    margin: 0 auto var(--spacing-8);
+  }
+  .filters__inner {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-2);
+    border-bottom: 1px solid var(--color-rule);
+    padding-bottom: var(--spacing-3);
+  }
+  .filter {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5em;
+    padding: 0.4em 0.8em;
+    font-family: var(--font-sans);
+    font-size: var(--text-sm);
+    color: var(--color-mute);
+    text-decoration: none;
+    border: 1px solid transparent;
+    transition: color var(--duration-fast) var(--ease-out-soft), border-color var(--duration-fast) var(--ease-out-soft);
+  }
+  .filter:hover {
+    color: var(--color-ink);
+    text-decoration: none;
+  }
+  .filter--active {
+    color: var(--color-ink);
+    border-color: var(--color-ink);
+  }
+  .filter .t-num {
+    font-size: 0.85em;
+    color: var(--color-mute);
+  }
+  .filter--active .t-num {
+    color: var(--color-ink);
+  }
+
+  .list {
+    padding: 0 var(--spacing-8) var(--spacing-24);
+    max-width: var(--container-wide);
+    margin: 0 auto;
+  }
+  .list__inner {
+    width: 100%;
+  }
+  .list__items {
+    margin-top: var(--spacing-4);
+  }
+
+  @media (max-width: 640px) {
+    .filters, .list {
+      padding-left: var(--spacing-4);
+      padding-right: var(--spacing-4);
+    }
+  }
+</style>

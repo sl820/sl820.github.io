@@ -1,0 +1,48 @@
+---
+import { COLORS, type ColorKey } from "~/lib/site";
+
+interface Props {
+  color: ColorKey;
+  label?: string;
+  size?: "sm" | "md";
+}
+
+const { color, label, size = "sm" } = Astro.props;
+const hex = COLORS[color];
+---
+
+<span
+  class:list={["ctag", `ctag--${size}`]}
+  style={`--ctag-color: ${hex};`}
+>
+  <span class="ctag__dot" aria-hidden="true"></span>
+  <span class="ctag__label">{label ?? color}</span>
+</span>
+
+<style>
+  .ctag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4em;
+    font-family: var(--font-sans);
+    font-size: var(--text-xs);
+    line-height: 1;
+    letter-spacing: 0.04em;
+    text-transform: lowercase;
+    color: var(--color-ink);
+    font-feature-settings: "tnum" 1;
+  }
+  .ctag--md {
+    font-size: var(--text-sm);
+  }
+  .ctag__dot {
+    width: 0.55em;
+    height: 0.55em;
+    background-color: var(--ctag-color);
+    border-radius: 50%;
+    flex: none;
+  }
+  .ctag__label {
+    color: var(--color-ink);
+  }
+</style>

@@ -1,0 +1,150 @@
+---
+import { SITE } from "~/lib/site";
+
+const year = new Date().getFullYear();
+const yearCN = "二〇二六";
+---
+
+<footer class="footer">
+  <div class="footer__rule" aria-hidden="true"></div>
+
+  <div class="footer__grid">
+    <div class="footer__col">
+      <p class="t-kicker footer__kicker">© {yearCN}</p>
+      <p class="footer__name">{SITE.name}</p>
+      <p class="footer__sub">All rights reserved.</p>
+    </div>
+
+    <div class="footer__col">
+      <p class="t-kicker footer__kicker">Elsewhere</p>
+      <ul class="footer__list">
+        {
+          SITE.social.map((item) => (
+            <li>
+              <a href={item.href} rel="me noopener" target={item.href.startsWith("http") ? "_blank" : undefined}>
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+
+    <div class="footer__col">
+      <p class="t-kicker footer__kicker">Colophon</p>
+      <p class="footer__colophon">
+        Set in <em>Fraunces</em> & <em>Noto Serif SC</em>. Built with Astro & Tailwind v4. Hosted on Cloudflare Pages.
+      </p>
+    </div>
+
+    <div class="footer__col footer__col--end">
+      <p class="t-kicker footer__kicker">Index</p>
+      <p class="t-num footer__num">№ {year} · v0.1</p>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    margin-top: var(--spacing-32);
+    padding: var(--spacing-12) var(--spacing-8) var(--spacing-8);
+    color: var(--color-ink);
+  }
+
+  .footer__rule {
+    height: 1px;
+    background-color: var(--color-ink);
+    margin-bottom: var(--spacing-12);
+  }
+
+  .footer__grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--spacing-8);
+    align-items: start;
+  }
+
+  .footer__col {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-3);
+  }
+
+  .footer__col--end {
+    text-align: right;
+  }
+
+  .footer__kicker {
+    color: var(--color-mute);
+  }
+
+  .footer__name {
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    font-weight: 500;
+    font-variation-settings: "opsz" 60, "SOFT" 30;
+    line-height: 1;
+    margin-top: var(--spacing-2);
+  }
+
+  .footer__sub {
+    font-family: var(--font-sans);
+    font-size: var(--text-xs);
+    color: var(--color-mute);
+  }
+
+  .footer__list {
+    list-style: none;
+    padding: 0;
+    margin: var(--spacing-2) 0 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-2);
+  }
+
+  .footer__list a {
+    font-family: var(--font-sans);
+    font-size: var(--text-sm);
+    text-decoration: none;
+    color: var(--color-ink);
+  }
+
+  .footer__list a:hover {
+    color: var(--color-cinnabar);
+  }
+
+  .footer__colophon {
+    font-family: var(--font-sans);
+    font-size: var(--text-xs);
+    line-height: 1.55;
+    color: var(--color-mute);
+    margin-top: var(--spacing-2);
+  }
+
+  .footer__colophon em {
+    font-family: var(--font-display);
+    font-style: italic;
+    color: var(--color-ink);
+  }
+
+  .footer__num {
+    font-size: var(--text-xs);
+    color: var(--color-mute);
+    margin-top: var(--spacing-2);
+  }
+
+  @media (max-width: 768px) {
+    .footer__grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .footer__col--end {
+      text-align: left;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .footer__grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

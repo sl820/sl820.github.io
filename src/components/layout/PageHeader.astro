@@ -1,0 +1,68 @@
+---
+interface Props {
+  kicker?: string;
+  title: string;
+  subtitle?: string;
+  meta?: string;
+}
+
+const { kicker, title, subtitle, meta } = Astro.props;
+---
+
+<header class="ph">
+  {kicker && <p class="t-kicker ph__kicker">{kicker}</p>}
+  <h1 class="t-h1 ph__title">{title}</h1>
+  {
+    subtitle && (
+      <p class="ph__subtitle">
+        {subtitle}
+      </p>
+    )
+  }
+  {meta && <p class="t-caption ph__meta">{meta}</p>}
+
+  <div class="ph__rule" aria-hidden="true"></div>
+</header>
+
+<style>
+  .ph {
+    padding: var(--spacing-24) var(--spacing-8) var(--spacing-12);
+    max-width: var(--container-wide);
+    margin: 0 auto;
+  }
+
+  .ph__kicker {
+    color: var(--color-mute);
+    margin-bottom: var(--spacing-6);
+  }
+
+  .ph__title {
+    margin-bottom: var(--spacing-6);
+  }
+
+  .ph__subtitle {
+    font-family: var(--font-serif);
+    font-size: var(--text-2xl);
+    line-height: 1.35;
+    color: var(--color-ink);
+    max-width: 50ch;
+    font-weight: 400;
+  }
+
+  .ph__meta {
+    margin-top: var(--spacing-4);
+    color: var(--color-mute);
+  }
+
+  .ph__rule {
+    height: 1px;
+    background-color: var(--color-ink);
+    margin-top: var(--spacing-12);
+  }
+
+  @media (max-width: 640px) {
+    .ph {
+      padding: var(--spacing-16) var(--spacing-4) var(--spacing-8);
+    }
+  }
+</style>

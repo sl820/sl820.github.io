@@ -1,0 +1,123 @@
+---
+import { type CollectionEntry, getCollection, render } from "astro:content";
+import BaseLayout from "~/layouts/BaseLayout.astro";
+
+export async function getStaticPaths() {
+  const notes = await getCollection("notes", ({ data }) => !data.draft);
+  return notes.map((note) => ({
+    params: { slug: note.id },
+    props: { note },
+  }));
+}
+
+interface Props {
+  note: CollectionEntry<"notes">;
+}
+
+const { note } = Astro.props;
+const { Content } = await render(note);
+
+const dateStr = note.data.date.toISOString().slice(0, 10);
+---
+
+<BaseLayout title={note.data.title} description={note.data.summary}>
+  <article class="note">
+    <header class="note__head">
+      <p class="t-kicker note__date">{dateStr}</p>
+      <h1 class="note__title">{note.data.title}</h1>
+      {
+        note.data.summary && (
+          <p class="note__summary">{note.data.summary}</p>
+        )
+      }
+      {note.data.tags.length > 0 && (
+        <ul class="note__tags">
+          {note.data.tags.map((tag) => <li class="note__tag">{tag}</li>)}
+        </ul>
+      )}
+    </header>
+
+    <div class="note__body">
+      <div class="t-prose note__prose">
+        <Content />
+      </div>
+    </div>
+
+    <footer class="note__foot">
+      <a href="/notes" class="note__back">← All notes</a>
+    </footer>
+  </article>
+</BaseLayout>
+
+<style>
+  .note {
+    padding: 0 var(--spacing-8) var(--spacing-24);
+    max-width: var(--container-wide);
+    margin: 0 auto;
+  }
+  .note__head {
+    padding: var(--spacing-24) 0 var(--spacing-12);
+    max-width: var(--container-narrow);
+    border-bottom: 1px solid var(--color-rule);
+  }
+  .note__date {
+    color: var(--color-mute);
+    margin-bottom: var(--spacing-4);
+  }
+  .note__title {
+    font-family: var(--font-display);
+    font-size: var(--text-5xl);
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    font-weight: 400;
+    font-variation-settings: "opsz" 144, "SOFT" 50;
+    margin: 0 0 var(--spacing-6);
+  }
+  .note__summary {
+    font-family: var(--font-serif);
+    font-size: var(--text-xl);
+    line-height: 1.5;
+    color: var(--color-mute);
+    font-style: italic;
+    margin: 0 0 var(--spacing-6);
+  }
+  .note__tags {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    gap: var(--spacing-2);
+  }
+  .note__tag {
+    font-family: var(--font-sans);
+    font-size: var(--text-xs);
+    color: var(--color-mute);
+    padding: 0.25em 0.6em;
+    border: 1px solid var(--color-rule);
+    letter-spacing: 0.04em;
+  }
+  .note__body {
+    padding: var(--spacing-12) 0;
+  }
+  .note__prose {
+    margin: 0 auto;
+  }
+  .note__foot {
+    padding-top: var(--spacing-8);
+    border-top: 1px solid var(--color-rule);
+  }
+  .note__back {
+    font-family: var(--font-sans);
+    font-size: var(--text-sm);
+    color: var(--color-ink);
+    text-decoration: none;
+  }
+  .note__back:hover {
+    color: var(--color-sage);
+  }
+
+  @media (max-width: 640px) {
+    .note { padding-left: var(--spacing-4); padding-right: var(--spacing-4); }
+    .note__title { font-size: var(--text-4xl); }
+  }
+</style>

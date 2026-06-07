@@ -1,0 +1,161 @@
+---
+import { SITE } from "~/lib/site";
+
+const path = Astro.url.pathname.replace(/\/$/, "") || "/";
+
+function isActive(href: string): boolean {
+  if (href === "/works") return path.startsWith("/works");
+  return path === href;
+}
+---
+
+<header class="nav">
+  <a href="/" class="nav__brand" aria-label="返回首页">
+    <span class="nav__brand-mark">萧</span>
+    <span class="nav__brand-sep">/</span>
+    <span class="nav__brand-name">{SITE.handle}</span>
+  </a>
+
+  <nav aria-label="主导航" class="nav__list">
+    {
+      SITE.nav.map((item) => (
+        <a
+          href={item.href}
+          class:list={["nav__item", { "nav__item--active": isActive(item.href) }]}
+          aria-current={isActive(item.href) ? "page" : undefined}
+        >
+          {item.label}
+        </a>
+      ))
+    }
+  </nav>
+</header>
+
+<style>
+  .nav {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: var(--spacing-8);
+    padding: var(--spacing-4) var(--spacing-8);
+    background-color: color-mix(in oklab, var(--color-paper) 92%, transparent);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-bottom: 1px solid transparent;
+    transition: border-color var(--duration-base) var(--ease-out-soft);
+  }
+
+  .nav:hover,
+  .nav:focus-within {
+    border-bottom-color: var(--color-rule);
+  }
+
+  .nav__brand {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.4em;
+    font-family: var(--font-display);
+    font-size: var(--text-lg);
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    text-decoration: none;
+    color: var(--color-ink);
+    font-variation-settings: "opsz" 60, "SOFT" 30;
+  }
+
+  .nav__brand:hover {
+    text-decoration: none;
+  }
+
+  .nav__brand-mark {
+    font-size: 1.2em;
+    line-height: 1;
+  }
+
+  .nav__brand-sep {
+    color: var(--color-mute);
+    font-weight: 300;
+  }
+
+  .nav__brand-name {
+    font-family: var(--font-mono);
+    font-size: 0.78em;
+    letter-spacing: 0.04em;
+    color: var(--color-mute);
+  }
+
+  .nav__list {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-6);
+  }
+
+  .nav__item {
+    font-family: var(--font-sans);
+    font-size: var(--text-sm);
+    letter-spacing: 0.02em;
+    font-weight: 500;
+    color: var(--color-ink);
+    text-decoration: none;
+    position: relative;
+    padding: 0.25em 0;
+  }
+
+  .nav__item:hover {
+    text-decoration: none;
+  }
+
+  .nav__item::after {
+    content: "";
+    position: absolute;
+    inset: auto 0 -2px 0;
+    height: 1px;
+    background-color: var(--color-ink);
+    transform-origin: left;
+    transform: scaleX(0);
+    transition: transform var(--duration-base) var(--ease-out-soft);
+  }
+
+  .nav__item:hover::after,
+  .nav__item--active::after {
+    transform: scaleX(1);
+  }
+
+  .nav__item--active {
+    color: var(--color-ink);
+  }
+
+  /* Track color tint on hover for known routes */
+  .nav__item[href="/works"]:hover {
+    color: var(--color-cinnabar);
+  }
+  .nav__item[href="/works"]:hover::after {
+    background-color: var(--color-cinnabar);
+  }
+  .nav__item[href="/research"]:hover {
+    color: var(--color-cobalt);
+  }
+  .nav__item[href="/research"]:hover::after {
+    background-color: var(--color-cobalt);
+  }
+  .nav__item[href="/notes"]:hover {
+    color: var(--color-sage);
+  }
+  .nav__item[href="/notes"]:hover::after {
+    background-color: var(--color-sage);
+  }
+
+  @media (max-width: 640px) {
+    .nav {
+      padding: var(--spacing-3) var(--spacing-4);
+      gap: var(--spacing-4);
+    }
+    .nav__list {
+      gap: var(--spacing-4);
+      font-size: var(--text-xs);
+    }
+  }
+</style>
